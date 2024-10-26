@@ -1,0 +1,64 @@
+<!-- static/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>RAG System</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div id="app">
+			<h1>Welcome to the RAG System</h1>
+
+			<!-- Login/Registration Form -->
+			<div id="auth-section">
+				<h2>Login</h2>
+				<form id="login-form">
+					<input type="email" id="email" placeholder="Email" required />
+					<input
+						type="password"
+						id="password"
+						placeholder="Password"
+						required
+					/>
+					<button type="submit">Login</button>
+				</form>
+				<button onclick="showRegister()">Register</button>
+			</div>
+
+			<!-- Main Interaction Section -->
+			<div id="interaction-section" style="display: none">
+				<h2>Welcome, <span id="username"></span>!</h2>
+				<button onclick="logout()">Logout</button>
+
+				<!-- Job Recommendation Form -->
+				<div id="recommendation">
+					<h3>Get Job Recommendations</h3>
+					<input
+						type="text"
+						id="job-query"
+						placeholder="Enter job title or keywords"
+					/>
+					<button onclick="getRecommendations()">Get Recommendations</button>
+					<div id="recommendation-output"></div>
+				</div>
+
+				<!-- Salary Estimation Form -->
+				<div id="salary-estimation">
+					<h3>Estimate Salary</h3>
+					<input type="text" id="job-title" placeholder="Job Title" />
+					<input
+						type="number"
+						id="years-experience"
+						placeholder="Years of Experience"
+					/>
+					<button onclick="estimateSalary()">Estimate Salary</button>
+					<div id="salary-output"></div>
+				</div>
+			</div>
+		</div>
+
+		<script src="script.js"></script>
+	</body>
+</html>

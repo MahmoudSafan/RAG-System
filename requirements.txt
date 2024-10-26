@@ -1,0 +1,22 @@
+fastapi
+uvicorn
+pymongo                   # MongoDB connector
+beanie            # MongoDB ODM used with FastAPI Users
+fastapi-users[beanie]  # FastAPI Users with Beanie support
+passlib[bcrypt]   # Password hashing
+pyjwt             # JWT for token generation and authentication
+transformers
+torch
+# Embedding and NLP Models
+sentence-transformers
+faiss-cpu         # Vector similarity search
+
+# PDF Processing
+pymupdf         # PDF text extraction
+
+# Additional Utilities
+python-dotenv     # For managing environment variables (optional)
+
+# Testing and Deployment
+httpx          # For making async requests, can be used in testing
+pytest            # Optional, for unit testing
