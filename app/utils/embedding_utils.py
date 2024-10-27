@@ -3,10 +3,13 @@ import faiss
 import numpy as np
 from models.job_model import job_data_collection, pdf_embeddings_collection
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import os
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Suppress parallelism warning
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def generate_embedding(text: str):
+    model = SentenceTransformer('all-MiniLM-L6-v2')
     return model.encode(text).tolist()
 
 async def retrieve_similar_content(query: str, k: int = 5):
@@ -44,20 +47,35 @@ async def retrieve_similar_content(query: str, k: int = 5):
     return similar_records
 
 def generate_response(prompts):
-    model_name = "distilgpt2"  # Lightweight model; adjust based on resources
+   # Load the model and tokenizer
+    model_name = "gpt2"  # Or use "distilgpt2" if resources are limited
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    gptmodel = AutoModelForCausalLM.from_pretrained(model_name)
-    # Add a padding token if not available
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+
+# Set pad_token if it doesn't exist
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+        
+    if not isinstance(prompts, list) or not prompts:
+        return "Error: No valid input provided for response generation."
 
+    # Combine prompts into a single string for the model input
+    prompt_text = "\n".join(prompts)
 
-    # Combine prompts into a single string for the model
-    prompt_texts = [record.get("description", "") for record in prompts if isinstance(record.get("description"), str)]
+    # Tokenize the input with padding, truncation, and attention mask
+    inputs = tokenizer(prompt_text, return_tensors="pt", padding=True, truncation=True)
+    inputs["attention_mask"] = (inputs["input_ids"] != tokenizer.pad_token_id).long()
 
-    # Tokenize the input and generate output from the model
-    inputs =  tokenizer(prompt_texts, return_tensors="pt", padding=True, truncation=True)
-    outputs = gptmodel.generate(inputs["input_ids"], max_length=1000, num_return_sequences=1, no_repeat_ngram_size=2)
-    # Decode the output to get the response text
-    response =  tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Generate output with `pad_token_id` to avoid padding issues
+    outputs = model.generate(
+        inputs["input_ids"],
+        attention_mask=inputs["attention_mask"],
+        max_new_tokens=30,  # Limit the number of generated tokens
+        num_return_sequences=1,
+        no_repeat_ngram_size=2,
+        pad_token_id=tokenizer.pad_token_id
+    )
+    
+    # Decode and return the generated response
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return response

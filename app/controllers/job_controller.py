@@ -5,13 +5,17 @@ from bson import ObjectId
 
 async def get_job_recommendation(query: str, k: int = 5):
     similar_content = await retrieve_similar_content(query, k)
-    if not similar_content:
-        return "No similar content found."
-    response = generate_response(similar_content)
+    
+    # Extract descriptions (or relevant text) from the similar_content records
+    prompt_texts = [record.get("description", "") for record in similar_content if isinstance(record.get("description"), str)]
+
+    # Generate response based on extracted text
+    response = generate_response(prompt_texts)
     return response
 
 def estimate_salary(job_title: str, years_experience: int):
-    prompt = f"Estimate a salary range for a '{job_title}' with {years_experience} years of experience."
+    prompt = (f"What is the estimated salary range for a '{job_title}' with "
+              f"{years_experience} years of experience? ")
     response = generate_response([prompt])
     return response
 
