@@ -8,7 +8,9 @@ router = APIRouter()
 
 @router.get("/generate-recommendation")
 async def generate_recommendation(query: str, k: int = 5, user: dict = Depends(get_current_user)):
-    response = get_job_recommendation(query, k)
+    response = await get_job_recommendation(query, k)
+    if response == "Error: Invalid input for response generation.":
+        raise HTTPException(status_code=500, detail="Failed to generate a response.")
     return {"recommendation": response}
 
 @router.get("/estimate-salary")

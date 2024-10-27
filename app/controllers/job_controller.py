@@ -3,8 +3,10 @@ from models.job_model import JobData, job_data_collection
 from datetime import datetime
 from bson import ObjectId
 
-def get_job_recommendation(query: str, k: int = 5):
-    similar_content = retrieve_similar_content(query, k)
+async def get_job_recommendation(query: str, k: int = 5):
+    similar_content = await retrieve_similar_content(query, k)
+    if not similar_content:
+        return "No similar content found."
     response = generate_response(similar_content)
     return response
 
