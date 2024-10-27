@@ -41,9 +41,10 @@ async def retrieve_similar_content(query: str, k: int = 5):
     faiss_index = faiss.IndexFlatL2(dimension)
     faiss_index.add(all_embeddings)
     distances, indices = faiss_index.search(query_embedding, k)
-
+    
     # Retrieve records based on indices
     similar_records = [valid_records[i] for i in indices[0]]
+    
     return similar_records
 
 def generate_response(prompts):
@@ -51,8 +52,7 @@ def generate_response(prompts):
     model_name = "gpt2"  # Or use "distilgpt2" if resources are limited
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
-
-# Set pad_token if it doesn't exist
+    # Set pad_token if it doesn't exist
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         
@@ -61,7 +61,7 @@ def generate_response(prompts):
 
     # Combine prompts into a single string for the model input
     prompt_text = "\n".join(prompts)
-
+    
     # Tokenize the input with padding, truncation, and attention mask
     inputs = tokenizer(prompt_text, return_tensors="pt", padding=True, truncation=True)
     inputs["attention_mask"] = (inputs["input_ids"] != tokenizer.pad_token_id).long()

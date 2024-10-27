@@ -10,7 +10,15 @@ async def get_job_recommendation(query: str, k: int = 5):
     prompt_texts = [record.get("description", "") for record in similar_content if isinstance(record.get("description"), str)]
 
     # Generate response based on extracted text
-    response = generate_response(prompt_texts)
+    model_response = generate_response(prompt_texts)
+    
+    for dict in similar_content:
+        dict.pop('embedding', None)
+    
+    response = {
+        "similar_content": similar_content,
+        "carrer_advice": model_response
+    }
     return response
 
 def estimate_salary(job_title: str, years_experience: int):

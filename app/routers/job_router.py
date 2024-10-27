@@ -3,6 +3,8 @@ from controllers.job_controller import get_job_recommendation, estimate_salary, 
 from models.job_model import JobData
 from controllers.pdf_controller import process_pdf
 from controllers.auth_controller import get_current_user
+from utils.helper import convert_object_ids
+import json
 
 router = APIRouter()
 
@@ -11,7 +13,9 @@ async def generate_recommendation(query: str, k: int = 5, user: dict = Depends(g
     response = await get_job_recommendation(query, k)
     if response == "Error: Invalid input for response generation.":
         raise HTTPException(status_code=500, detail="Failed to generate a response.")
-    return {"recommendation": response}
+    new_response = convert_object_ids(response)
+    print(new_response)
+    return new_response
 
 @router.get("/estimate-salary")
 async def estimate_salary_endpoint(job_title: str, years_experience: int, user: dict = Depends(get_current_user)):
