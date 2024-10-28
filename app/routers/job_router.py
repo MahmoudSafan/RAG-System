@@ -14,20 +14,12 @@ async def generate_recommendation(query: str, k: int = 5, user: dict = Depends(g
     if response == "Error: Invalid input for response generation.":
         raise HTTPException(status_code=500, detail="Failed to generate a response.")
     new_response = convert_object_ids(response)
-    print(new_response)
     return new_response
 
 @router.get("/estimate-salary")
 async def estimate_salary_endpoint(job_title: str, years_experience: int, user: dict = Depends(get_current_user)):
     response = estimate_salary(job_title, years_experience)
     return {"estimated_salary": response}
-
-@router.post("/upload-pdf")
-async def upload_pdf_file(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PDF file.")
-    result = process_pdf(file, user["sub"])
-    return {"message": result}
 
 @router.post("/jobs", response_model=object)
 async def create_job_route(job_data: JobData, user=Depends(get_current_user)):
