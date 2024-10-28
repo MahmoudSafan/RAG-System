@@ -1,93 +1,122 @@
-// static/script.js
-const API_URL = "http://127.0.0.1:8000"; // Your FastAPI base URL
-let token = null;
+const BASE_URL = "http://127.0.0.1:8000"; // Update to your FastAPI server URL
 
-// Show registration form
-function showRegister() {
-	document.getElementById("auth-section").innerHTML = `
-    <h2>Register</h2>
-    <form id="register-form">
-      <input type="email" id="reg-email" placeholder="Email" required>
-      <input type="password" id="reg-password" placeholder="Password" required>
-      <button type="submit">Register</button>
-    </form>`;
-
-	document.getElementById("register-form").onsubmit = register;
-}
-
-// Login function
-async function login(event) {
-	event.preventDefault();
-	const email = document.getElementById("email").value;
-	const password = document.getElementById("password").value;
-
-	const response = await fetch(`${API_URL}/auth/token`, {
-		method: "POST",
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({ username: email, password }),
-	});
-	const data = await response.json();
-	if (data.access_token) {
-		token = data.access_token;
-		document.getElementById("auth-section").style.display = "none";
-		document.getElementById("interaction-section").style.display = "block";
-	} else {
-		alert("Login failed");
-	}
-}
-
-// Register function
-async function register(event) {
-	event.preventDefault();
+// Register a new user
+async function registerUser() {
 	const email = document.getElementById("reg-email").value;
 	const password = document.getElementById("reg-password").value;
+	const resultElement = document.getElementById("register-result");
 
-	const response = await fetch(`${API_URL}/auth/register`, {
+	const response = await fetch(`${BASE_URL}/auth/register`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ email, password }),
 	});
+
+	const data = await response.json();
+	resultElement.textContent = data.message || "Registration error.";
+}
+
+// Login user
+async function loginUser() {
+	const email = document.getElementById("login-email").value;
+	const password = document.getElementById("login-password").value;
+	const resultElement = document.getElementById("login-result");
+
+	const response = await fetch(`${BASE_URL}/auth/login`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ email, password }),
+	});
+
 	const data = await response.json();
 	if (response.ok) {
-		alert("Registration successful");
-		showLogin();
+		resultElement.textContent = "Login successful!";
+		localStorage.setItem("auth_token", data.access_token); // Store JWT
 	} else {
-		alert(data.detail || "Registration failed");
+		resultElement.textContent = data.detail || "Login failed.";
 	}
 }
 
-// Get Job Recommendations
-async function getRecommendations() {
+// Get job recommendations
+async function getJobRecommendation() {
 	const query = document.getElementById("job-query").value;
+	const resultElement = document.getElementById("recommendation-result");
+
 	const response = await fetch(
-		`${API_URL}/generate-recommendation?query=${query}`,
+		`${BASE_URL}/generate-recommendation?query=${encodeURIComponent(query)}`,
 		{
-			headers: { Authorization: `Bearer ${token}` },
+			headers: {
+				Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+			},
 		}
 	);
 	const data = await response.json();
-	document.getElementById("recommendation-output").innerText =
-		data.recommendation;
+	resultElement.textContent =
+		data.recommendation || "Error fetching recommendation.";
 }
 
-// Estimate Salary
+// Estimate salary
 async function estimateSalary() {
-	const jobTitle = document.getElementById("job-title").value;
-	const yearsExperience = document.getElementById("years-experience").value;
+	const title = document.getElementById("job-title").value;
+	const experience = document.getElementById("years-experience").value;
+	const resultElement = document.getElementById("salary-result");
 
 	const response = await fetch(
-		`${API_URL}/estimate-salary?job_title=${jobTitle}&years_experience=${yearsExperience}`,
+		`${BASE_URL}/estimate-salary?job_title=${encodeURIComponent(
+			title
+		)}&years_experience=${experience}`,
 		{
-			headers: { Authorization: `Bearer ${token}` },
+			headers: {
+				Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+			},
 		}
 	);
 	const data = await response.json();
-	document.getElementById("salary-output").innerText = data.estimated_salary;
+	resultElement.textContent =
+		data.estimated_salary || "Error estimating salary.";
 }
 
-// Logout function
-function logout() {
-	token = null;
-	document.getElementById("interaction-section").style.display = "none";
-	document.getElementById("auth-section").style.display = "block";
+// Upload PDF
+async function uploadPDF() {
+	const fileInput = document.getElementById("pdf-file");
+	const formData = new FormData();
+	formData.append("file", fileInput.files[0]);
+
+	const response = await fetch(`${BASE_URL}/upload-pdf`, {
+		method: "POST",
+		headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+		body: formData,
+	});
+	const data = await response.json();
+	document.getElementById("pdf-result").textContent =
+		data.message || "Error uploading PDF.";
+}
+
+// Chat functionality
+async function createNewChat() {
+	const response = await fetch(`${BASE_URL}/chat`, {
+		method: "POST",
+		headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+	});
+	const data = await response.json();
+	localStorage.setItem("chat_id", data.chat_id);
+}
+
+async function sendMessage() {
+	const chatId = localStorage.getItem("chat_id");
+	const message = document.getElementById("chat-input").value;
+	const chatHistory = document.getElementById("chat-history");
+
+	const response = await fetch(`${BASE_URL}/chat/${chatId}/message`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+		},
+		body: JSON.stringify({ content: message }),
+	});
+	const data = await response.json();
+	chatHistory.innerHTML += `<p>User: ${message}</p><p>Bot: ${
+		data.llm_response || "Error in chat response."
+	}</p>`;
 }

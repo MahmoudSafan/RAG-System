@@ -1,64 +1,71 @@
-<!-- static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>RAG System</title>
+		<title>RAG System - Job & Chat Interaction</title>
 		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
 		<div id="app">
-			<h1>Welcome to the RAG System</h1>
+			<h1>RAG System - Job & Chat Interaction</h1>
 
-			<!-- Login/Registration Form -->
-			<div id="auth-section">
+			<!-- User Registration Section -->
+			<section id="register">
+				<h2>Register</h2>
+				<input type="email" id="reg-email" placeholder="Email" />
+				<input type="password" id="reg-password" placeholder="Password" />
+				<button onclick="registerUser()">Register</button>
+				<p id="register-result"></p>
+			</section>
+
+			<!-- Login Section -->
+			<section id="login">
 				<h2>Login</h2>
-				<form id="login-form">
-					<input type="email" id="email" placeholder="Email" required />
-					<input
-						type="password"
-						id="password"
-						placeholder="Password"
-						required
-					/>
-					<button type="submit">Login</button>
-				</form>
-				<button onclick="showRegister()">Register</button>
-			</div>
+				<input type="email" id="login-email" placeholder="Email" />
+				<input type="password" id="login-password" placeholder="Password" />
+				<button onclick="loginUser()">Login</button>
+				<p id="login-result"></p>
+			</section>
 
-			<!-- Main Interaction Section -->
-			<div id="interaction-section" style="display: none">
-				<h2>Welcome, <span id="username"></span>!</h2>
-				<button onclick="logout()">Logout</button>
+			<!-- Job Recommendation Section -->
+			<section id="recommendation">
+				<h2>Job Recommendation</h2>
+				<input type="text" id="job-query" placeholder="Enter job title" />
+				<button onclick="getJobRecommendation()">Get Recommendation</button>
+				<p id="recommendation-result"></p>
+			</section>
 
-				<!-- Job Recommendation Form -->
-				<div id="recommendation">
-					<h3>Get Job Recommendations</h3>
-					<input
-						type="text"
-						id="job-query"
-						placeholder="Enter job title or keywords"
-					/>
-					<button onclick="getRecommendations()">Get Recommendations</button>
-					<div id="recommendation-output"></div>
-				</div>
+			<!-- Salary Estimation Section -->
+			<section id="salary-estimator">
+				<h2>Salary Estimator</h2>
+				<input type="text" id="job-title" placeholder="Job Title" />
+				<input
+					type="number"
+					id="years-experience"
+					placeholder="Years of Experience"
+				/>
+				<button onclick="estimateSalary()">Estimate Salary</button>
+				<p id="salary-result"></p>
+			</section>
 
-				<!-- Salary Estimation Form -->
-				<div id="salary-estimation">
-					<h3>Estimate Salary</h3>
-					<input type="text" id="job-title" placeholder="Job Title" />
-					<input
-						type="number"
-						id="years-experience"
-						placeholder="Years of Experience"
-					/>
-					<button onclick="estimateSalary()">Estimate Salary</button>
-					<div id="salary-output"></div>
-				</div>
-			</div>
+			<!-- PDF Upload Section -->
+			<section id="pdf-upload">
+				<h2>Upload PDF for Embedding</h2>
+				<input type="file" id="pdf-file" accept="application/pdf" />
+				<button onclick="uploadPDF()">Upload PDF</button>
+				<p id="pdf-result"></p>
+			</section>
+
+			<!-- Chat Section -->
+			<section id="chat">
+				<h2>Chat</h2>
+				<button onclick="createNewChat()">Start New Chat</button>
+				<input type="text" id="chat-input" placeholder="Enter message" />
+				<button onclick="sendMessage()">Send Message</button>
+				<div id="chat-history"></div>
+			</section>
 		</div>
-
 		<script src="script.js"></script>
 	</body>
 </html>
