@@ -20,3 +20,4 @@ python-dotenv     # For managing environment variables (optional)
 # Testing and Deployment
 httpx          # For making async requests, can be used in testing
 pytest            # Optional, for unit testing
+
